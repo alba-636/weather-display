@@ -4,17 +4,22 @@
   "description": "",
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
-  "main": "index.js",
+  "type": "module",
+  "main": "index.ts",
   "scripts": {
     "start": "node dist/index.js",
     "build": "tsc",
-    "dev": "nodemon src/index.ts"
+    "dev": "npx tsx watch src/index.ts"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^26.0.1",
-    "nodemon": "^3.1.14",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.22.4",
     "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "node-gpsd": "^0.3.4"
   }
 }
