@@ -78,7 +78,7 @@ class GPSHandler {
                 this.listener.watch({class: 'WATCH', json: true, nmea: false})
             } catch (error) {
                 console.error('[GPSHandler:getCurrentPosition]', error)
-                reject(error)
+                resolve(null)
             }
         })
 
