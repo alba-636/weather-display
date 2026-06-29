@@ -1,10 +1,18 @@
 import GPSController from '@/features/GPSController'
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 export const usePositionStore = defineStore('position', () => {
     const latitude = ref(0)
     const longitude = ref(0)
+
+    const latitudeShort = computed(() => {
+        return Number(latitude.value.toFixed(2))
+    })
+
+    const longitudeShort = computed(() => {
+        return Number(longitude.value.toFixed(2))
+    })
 
     async function updatePosition() {
         const position = await GPSController.fetchCurrentPosition()
@@ -14,5 +22,5 @@ export const usePositionStore = defineStore('position', () => {
         longitude.value = position.lon
     }
 
-    return { latitude, longitude, updatePosition }
+    return { latitude, longitude, latitudeShort, longitudeShort, updatePosition }
 })
