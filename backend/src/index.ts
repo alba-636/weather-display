@@ -9,7 +9,7 @@ console.log('Hello, World!')
 config()
 
 const corsOptions = {
-  origin: 'http://localhost:5173',
+  origin: process.env.CORS,
   methods: 'GET'
 }
 
