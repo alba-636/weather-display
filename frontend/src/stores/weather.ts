@@ -1,16 +1,24 @@
-import OpenMeteoController, { type CurrentWeather } from '@/features/openMeteoController'
+import OpenMeteoController, { type CurrentWeather, type HourlyForecastWeather } from '@/features/openMeteoController'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useWeatherStore = defineStore('weather', () => {
     const current = ref<CurrentWeather>()
+    const hourlyForecast = ref<HourlyForecastWeather>()
 
     async function updateCurrentWeather (latitude: number, longitude: number) {
         const weather = await OpenMeteoController.fetchCurrent(latitude, longitude)
         if (!weather) return
 
         current.value = weather
-    } 
+    }
 
-    return { current, updateCurrentWeather }
+    async function updateHourlyForecastWeather (latitude: number, longitude: number) {
+        const weather = await OpenMeteoController.fetchForecast(latitude, longitude, 7)
+        if (!weather) return
+
+        hourlyForecast.value = weather
+    }
+
+    return { current, hourlyForecast, updateCurrentWeather, updateHourlyForecastWeather }
 })

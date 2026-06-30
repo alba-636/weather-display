@@ -55,13 +55,20 @@ onUnmounted(() => {
 
         <v-card-text v-if="weatherStore.current">
             <div class="d-flex flex-wrap justify-space-evenly">
-                <thermometer :temperature="weatherStore.current.current.temperature_2m" />
+                <thermometer
+                    v-if="weatherStore.current.current.temperature_2m"
+                    :temperature="weatherStore.current.current.temperature_2m" />
     
-                <humidity :humidity="weatherStore.current.current.relative_humidity_2m" />
+                <humidity
+                    v-if="weatherStore.current.current.relative_humidity_2m"
+                    :humidity="weatherStore.current.current.relative_humidity_2m" />
     
-                <cloud-cover :cloud-cover="weatherStore.current.current.cloud_cover" />
+                <cloud-cover
+                    v-if="weatherStore.current.current.cloud_cover"
+                    :cloud-cover="weatherStore.current.current.cloud_cover" />
     
                 <wind
+                    v-if="weatherStore.current.current.wind_speed_10m && weatherStore.current.current.wind_gusts_10m && weatherStore.current.current.wind_direction_10m"
                     :wind-speed="weatherStore.current.current.wind_speed_10m"
                     :gust-speed="weatherStore.current.current.wind_gusts_10m"
                     :direction="weatherStore.current.current.wind_direction_10m" />
