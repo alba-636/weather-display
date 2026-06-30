@@ -72,7 +72,11 @@ class GPSHandler {
 
                 this.listener.on('TPV', (data: TPVData) => {
                     clearInterval(timeout)
-                    resolve({ lat: data.lat, lon: data.lon })
+                    if (data.lat && data.lon) {
+                        resolve({ lat: data.lat, lon: data.lon })
+                    } else {
+                        resolve(null)
+                    }
                 })
 
                 this.listener.watch({class: 'WATCH', json: true, nmea: false})
