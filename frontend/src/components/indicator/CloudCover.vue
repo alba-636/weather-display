@@ -5,7 +5,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div>
+    <div class="text-center pa-1">
         <v-icon
             size="x-large"
             icon="mdi-cloud-percent" />
