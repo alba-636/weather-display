@@ -4,11 +4,14 @@ class GPSController {
         try {
             const response = await fetch('http://localhost:4242/api/position')
             const json = await response.json()
-            return json as Position
+            if (json?.lat && json?.lon) {
+                return json as Position
+            }
         } catch (error) {
             console.error('[GPSController:fetchCurrentPosition]', error)
-            return null
         }
+        
+        return null
     }
 }
 
