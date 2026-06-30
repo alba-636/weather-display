@@ -25,12 +25,9 @@ class OpenMeteoController {
                     current: [
                         CurrentWeatherVariable.temperature_2m,
                         CurrentWeatherVariable.relative_humidity_2m,
-                        CurrentWeatherVariable.is_day,
-                        CurrentWeatherVariable.precipitation,
-                        CurrentWeatherVariable.rain,
+                        CurrentWeatherVariable.cloud_cover,
                         CurrentWeatherVariable.wind_speed_10m,
                         CurrentWeatherVariable.wind_direction_10m,
-                        CurrentWeatherVariable.cloud_cover,
                         CurrentWeatherVariable.wind_gusts_10m,
                     ]
                 }

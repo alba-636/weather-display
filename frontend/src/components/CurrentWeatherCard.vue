@@ -2,6 +2,10 @@
 import { usePositionStore } from '@/stores/position';
 import { useWeatherStore } from '@/stores/weather';
 import { computed, onUnmounted, ref, watch } from 'vue';
+import Wind from './indicator/wind/Wind.vue';
+import Humidity from './indicator/Humidity.vue';
+import CloudCover from './indicator/CloudCover.vue';
+import Thermometer from './indicator/Thermometer.vue';
 
 const positionStore = usePositionStore()
 const weatherStore = useWeatherStore()
@@ -26,7 +30,6 @@ async function fetchCurrentMeteo() {
 }
 
 watch([() => positionStore.latitudeShort, () => positionStore.longitudeShort], ([lat, lon]) => {
-    console.log(`lat: ${lat} lon:${lon}`)
     fetchCurrentMeteo()
 })
 
@@ -34,7 +37,7 @@ const dateInterval = setInterval(() => {
     date.value = new Date()
 }, 10_000);
 
-const updateWeatherInterval = setInterval(fetchCurrentMeteo, 10000)
+const updateWeatherInterval = setInterval(fetchCurrentMeteo, 60_000)
 
 onUnmounted(() => {
     clearInterval(dateInterval)
@@ -50,24 +53,26 @@ onUnmounted(() => {
             <v-card-title class="text-center">{{ dateFomatted }}</v-card-title>
         </v-card-item>
 
-        <v-card-text v-if="hasCurrentWeatherData">
-            <p>{{ weatherStore.current?.current.temperature_2m }}{{ weatherStore.current?.current_units.temperature_2m }}</p>
-            <p>Humidity: {{ weatherStore.current?.current.relative_humidity_2m }}{{ weatherStore.current?.current_units.relative_humidity_2m }}</p>
-            <p>Precipitation: {{ weatherStore.current?.current.precipitation }}{{ weatherStore.current?.current_units.precipitation }}</p>
-            <p>Rain: {{ weatherStore.current?.current.rain }}{{ weatherStore.current?.current_units.rain }}</p>
-            <p>Cloud cover: {{ weatherStore.current?.current.cloud_cover }}{{ weatherStore.current?.current_units.cloud_cover }}</p>
-
-            <p>Wind: {{ weatherStore.current?.current.wind_speed_10m }}{{ weatherStore.current?.current_units.wind_speed_10m }}</p>
-            <p>Direction: {{ weatherStore.current?.current.wind_direction_10m }}{{ weatherStore.current?.current_units.wind_direction_10m }}</p>
-            <p>Gust: {{ weatherStore.current?.current.wind_gusts_10m }}{{ weatherStore.current?.current_units.wind_gusts_10m }}</p>
-
-
+        <v-card-text v-if="weatherStore.current">
+            <div class="d-flex flex-wrap justify-space-evenly">
+                <thermometer
+                    class="pa-1"
+                    :temperature="weatherStore.current.current.temperature_2m" />
+    
+                <humidity
+                    class="pa-1"
+                    :humidity="weatherStore.current.current.relative_humidity_2m" />
+    
+                <cloud-cover
+                    class="pa-1"
+                    :cloud-cover="weatherStore.current.current.cloud_cover" />
+    
+                <wind
+                    class="pa-1"
+                    :wind-speed="weatherStore.current.current.wind_speed_10m"
+                    :gust-speed="weatherStore.current.current.wind_gusts_10m"
+                    :direction="weatherStore.current.current.wind_direction_10m" />
+            </div>
         </v-card-text>
     </v-card>
 </template>
-
-<script lang="ts">
-
-
-
-</script>
