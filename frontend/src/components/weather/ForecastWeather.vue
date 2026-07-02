@@ -2,7 +2,7 @@
 import { type Hourly } from '@/features/openMeteoController';
 import { usePositionStore } from '@/stores/position';
 import { useWeatherStore } from '@/stores/weather';
-import { computed, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import ForecastDayWeatherCard from './ForecastDayWeatherCard.vue';
 
 const props = defineProps<{
@@ -11,6 +11,8 @@ const props = defineProps<{
 
 const positionStore = usePositionStore()
 const weatherStore = useWeatherStore()
+
+const isLoadingWeather = ref<boolean>(true)
 
 const hasPosition = computed(() => {
     return positionStore.latitude !== 0 && positionStore.longitude !== 0
@@ -56,7 +58,9 @@ const dailyForecastWeather = computed(() => {
 
 async function fetchForecastWeather() {
     if (!hasPosition) return console.warn('[CurrentWeatherCard] Not position found!')
+    isLoadingWeather.value = true
     await weatherStore.updateHourlyForecastWeather(positionStore.latitude, positionStore.longitude, props.days)
+    isLoadingWeather.value = false
 }
 
 function getDay (datetime: string): string {
@@ -71,7 +75,17 @@ watch([() => positionStore.latitudeShort, () => positionStore.longitudeShort], (
 </script>
 
 <template>
-    <div class="d-flex overflow-auto">
+    <!-- Loader -->
+     <v-progress-circular
+        v-if="isLoadingWeather"
+        indeterminate
+        size="32"
+        width="4" />
+
+    <!-- Forecast Weather -->
+    <div
+        v-else
+        class="d-flex overflow-auto">
         <div v-for="(hourly, key) of dailyForecastWeather">
             <ForecastDayWeatherCard
                 class="ma-4"

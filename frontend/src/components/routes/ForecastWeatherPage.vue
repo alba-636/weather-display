@@ -8,7 +8,7 @@ const props = withDefaults(
 </script>
 
 <template>
-    <div class="d-flex fill-height align-start justify-center">
+    <div class="d-flex fill-height align-center justify-center">
         <ForecastWeather :days="Number(props.days)" />
     </div>
 </template>
