@@ -48,7 +48,7 @@ function checkAll () {
 
 async function checkPositionAPIStatus () {
     isLoadingAPIPositionStatus.value = true
-    const isOnline = await checkAPIStatus('http://localhost:4242/api/position')
+    const isOnline = await checkAPIStatus('http://localhost:4242/api/ping')
     isAPIPositionOnline.value = isOnline
     isLoadingAPIPositionStatus.value = false
 }
