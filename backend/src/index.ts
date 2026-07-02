@@ -2,6 +2,7 @@ import express from 'express'
 import { config } from 'dotenv'
 import cors from 'cors'
 import { getPosition } from './controllers/positionController.js'
+import GPSHandler from './features/gpsHandler.js'
 
 console.log('Hello, World!')
 
@@ -12,6 +13,8 @@ const corsOptions = {
   origin: process.env.CORS,
   methods: 'GET'
 }
+
+GPSHandler.instance.startListening()
 
 const app = express()
 app.use(cors(corsOptions))

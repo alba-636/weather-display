@@ -1,6 +1,7 @@
 import * as gpsd from 'node-gpsd' // see: https://github.com/eelcocramer/node-gpsd
 
-const GET_CURRENT_POSITION_TIMEOUT = 5_000 // in milliseconds
+const CONNECT_TIMEOUT = 5_000 // ms / 5s
+const LISTENING_TIMEOOUT = 300_000 // ms / 5m
 
 class GPSHandler {
     private static _instance: GPSHandler | null
@@ -8,11 +9,15 @@ class GPSHandler {
         if (!this._instance) {
             this._instance = new GPSHandler()
         }
-
+        
         return this._instance
     }
-
+    
+    private position: Position | undefined
     private listener: any | null = null
+
+    private isListening: boolean = false
+    private listeningTimeout: NodeJS.Timeout | null = null
 
     private constructor () {
         this.init()
@@ -20,6 +25,11 @@ class GPSHandler {
 
     private init () {
         console.log('[GPSHandler] Initialize listener')
+
+        if (this.listener) {
+            console.warn('[GPSHandler:init] Listener already initialized!')
+            return
+        }
 
         // Listen the GPSD deamon events.
         // note: the deamon have to be started before starting listening.
@@ -35,60 +45,77 @@ class GPSHandler {
         });
     }
 
-    connect () {
+    async connect(): Promise<boolean>  {
         if (!this.listener) {
             throw Error('[GPSHandler] listener not initialized')
         }
 
         if (this.listener.isConnected()) {
             console.warn('[GPSHandler] listener already connected!')
-            return
+            return true
         }
 
-        this.listener.connect()
+        const connectPromise = new Promise<boolean>(resolve => this.listener.connect(() => resolve(true)))
+        const timeoutPromise = new Promise<boolean>(resolve => setTimeout(() => resolve(false), CONNECT_TIMEOUT))
+
+        return Promise.any([connectPromise, timeoutPromise])
     }
 
-    disconnect () {
+    async disconnect (): Promise<boolean> {
         if (!this.listener) {
             throw Error('[GPSHandler] listener not initialized')
         }
 
         if (!this.listener.isConnected()) {
             console.warn('[GPSHandler] listener already disconnected!')
-            return
+            return true
         }
 
-        this.listener.unwatch()
-        this.listener.disconnect()
+        if (this.listeningTimeout) {
+            clearTimeout(this.listeningTimeout)
+            this.listeningTimeout = null
+        }
+
+        const disconnectPromise = new Promise<boolean>(resolve => {
+            this.listener.unwatch()
+            this.listener.disconnect(() => resolve(true))
+        })
+        const timeoutPromise = new Promise<boolean>(resolve => setTimeout(() => resolve(false), CONNECT_TIMEOUT))
+
+        return Promise.any([disconnectPromise, timeoutPromise]).finally(() => this.isListening = false)
+    }
+
+    async startListening () {
+        try {
+            const isConnected = await this.connect()
+            if (!isConnected) {
+                console.warn('[GPSHandler:startListening] Impossible to connect')
+                return
+            }
+
+            this.listener.on('TPV', (data: TPVData) => {
+                if (data.lat && data.lon) {
+                    this.position = { lat: data.lat, lon: data.lon }
+                }
+            })
+
+            this.listener.watch({class: 'WATCH', json: true, nmea: false})
+
+            this.listeningTimeout = setTimeout(this.disconnect.bind(this), LISTENING_TIMEOOUT)
+
+            this.isListening = true
+        } catch (error) {
+            console.error('[GPSHandler:startListening]', error)
+        }
     }
 
     async getCurrentPosition (): Promise<Position | null> {
-        const promise = new Promise<Position | null>((resolve, reject) => {
-            try {
-                // Use a timeout to end the Promise to avoid to be stuck.
-                const timeout = setTimeout(() => resolve(null), GET_CURRENT_POSITION_TIMEOUT)
-
-                this.connect()
-
-                this.listener.on('TPV', (data: TPVData) => {
-                    clearInterval(timeout)
-                    if (data.lat && data.lon) {
-                        resolve({ lat: data.lat, lon: data.lon })
-                    } else {
-                        resolve(null)
-                    }
-                })
-
-                this.listener.watch({class: 'WATCH', json: true, nmea: false})
-            } catch (error) {
-                console.error('[GPSHandler:getCurrentPosition]', error)
-                resolve(null)
-            }
-        })
-
-        promise.finally(this.disconnect.bind(this))
-
-        return promise
+        if (!this.isListening) {
+            await this.startListening()
+            await new Promise(resolve => setTimeout(resolve, 1000))
+        }
+        this.listeningTimeout?.refresh()
+        return this.position ?? null
     }
 }
 
