@@ -29,6 +29,7 @@ async function fetchCurrentMeteo() {
     await weatherStore.updateCurrentWeather(positionStore.latitude, positionStore.longitude)
 }
 
+if (positionStore.latitudeShort && positionStore.longitudeShort) fetchCurrentMeteo()
 watch([() => positionStore.latitudeShort, () => positionStore.longitudeShort], ([lat, lon]) => {
     fetchCurrentMeteo()
 })

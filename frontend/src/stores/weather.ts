@@ -13,8 +13,8 @@ export const useWeatherStore = defineStore('weather', () => {
         current.value = weather
     }
 
-    async function updateHourlyForecastWeather (latitude: number, longitude: number) {
-        const weather = await OpenMeteoController.fetchForecast(latitude, longitude, 7)
+    async function updateHourlyForecastWeather (latitude: number, longitude: number, days: number = 7) {
+        const weather = await OpenMeteoController.fetchForecast(latitude, longitude, days)
         if (!weather) return
 
         hourlyForecast.value = weather

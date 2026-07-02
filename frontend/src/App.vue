@@ -1,35 +1,8 @@
 <script setup lang="ts">
-import CurrentWeatherCard from './components/weather/CurrentWeatherCard.vue';
-import ForecastWeather from './components/weather/ForecastWeather.vue';
-import Test from './components/Test.vue';
-import { usePositionStore } from './stores/position.ts';
-
-const store = usePositionStore()
-
-async function updatePosition() {
-    try {
-        await store.updatePosition()
-    } catch (error) {
-        console.error('[updatePosition]', error)
-    }
-}
-
-updatePosition()
-setInterval(updatePosition.bind(this), 30_000)
-
 </script>
 
 <template>
   <v-app>
     <router-view />
-    <!-- <CurrentWeatherCard class="ma-16"/>
-
-    <ForecastWeather />
-    
-    <Test /> -->
   </v-app>
 </template>
-
-<style scoped>
-
-</style>
