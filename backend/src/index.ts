@@ -17,6 +17,7 @@ const app = express()
 app.use(cors(corsOptions))
 
 app.get('/api/position', getPosition)
+app.get('/api/ping', (_, res) => { res.status(200).json({ status: 200 }) })
 
 app.listen(process.env.PORT, () => {
     console.log(`Listening on port ${process.env.PORT}.`)
