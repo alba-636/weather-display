@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, nextTick, onMounted, useTemplateRef } from 'vue';
 import type { Hourly } from '@/features/openMeteoController';
 import WindDirectionIcon from './indicator/wind/WindDirectionIcon.vue';
 
 const props = defineProps<{
     day: string,
-    hourly: Hourly
+    hourly: Hourly,
+    scrollToHour?: number;
 }>()
+
+const cardRef = useTemplateRef('mainCard')
 
 const hourlyItems = computed(() => {
     return props.hourly.time?.map((_, index) => {
@@ -18,6 +21,12 @@ const hourlyItems = computed(() => {
     })
 })
 
+const isToday = computed<boolean>(() => {
+    const today = new Date()
+    const day = new Date(props.day)
+    return today.toISOString().slice(0, 10) === day.toISOString().slice(0, 10)
+})
+
 const headers = [
     { title: 'time', align: 'center', key: 'time' },
     { title: 'temperature_2m', align: 'center', key: 'temperature_2m' },
@@ -26,10 +35,29 @@ const headers = [
     { title: 'wind_speed_10m', align: 'center', key: 'wind_speed_10m', minWidth: 100 },
     { title: 'precipitation', align: 'center', key: 'precipitation' },
 ]
+
+function scrollToPosition (position: number) {
+    if (position === 0) return
+    const previousPosition = position - 1
+    const element: Element | undefined = cardRef.value?.$el.querySelector(`#item-${previousPosition}`)
+    element?.scrollIntoView({
+        behavior: 'instant',
+        block: 'start',
+    })
+}
+
+onMounted(() => {
+    scrollToPosition(props.scrollToHour ?? 8)
+
+    // Scroll back left to the 1st card.
+    if (isToday.value) {
+        nextTick().then(() => cardRef.value?.$el.scrollIntoView({ behavior: 'instant', block: 'start' }))
+    }
+})
 </script>
 
 <template>
-    <v-card>
+    <v-card ref="mainCard">
         <v-card-item>
             <v-card-title class="text-center">{{ props.day }}</v-card-title>
         </v-card-item>
@@ -43,8 +71,7 @@ const headers = [
                 disable-sort
                 hide-default-footer
                 height="400"
-                density="compact"
-                >
+                density="compact">
                 <!-- Headers -->
                 <template v-slot:header.time>
                     <v-icon icon="mdi-clock-time-five" />
@@ -72,7 +99,9 @@ const headers = [
 
                 <!-- Items -->
                 <template v-slot:item="{ index, item }">
-                    <tr :class="{ 'bg-grey-darken-3': index % 2 === 0 }">
+                    <tr
+                        :id="'item-' + index"
+                        :class="{ 'bg-grey-darken-3': index % 2 === 0 }">
                         <td>{{ String(item.time).slice(11) }}</td>
                         <td>{{ item.temperature_2m }}°C</td>
                         <td>{{ item.relative_humidity_2m }}%</td>
