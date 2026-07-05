@@ -10,6 +10,7 @@ const props = defineProps<{
 }>()
 
 const cardRef = useTemplateRef('mainCard')
+const currentHour = (new Date()).getHours()
 
 const hourlyItems = computed(() => {
     return props.hourly.time?.map((_, index) => {
@@ -37,22 +38,30 @@ const headers = [
 ]
 
 function scrollToPosition (position: number) {
-    if (position === 0) return
-    const previousPosition = position - 1
-    const element: Element | undefined = cardRef.value?.$el.querySelector(`#item-${previousPosition}`)
-    element?.scrollIntoView({
-        behavior: 'instant',
-        block: 'start',
-    })
+    try {
+        if (position === 0) return
+        const element: Element | undefined = cardRef.value?.$el.querySelector(`#item-${position}`)
+        const wrapperElement = element?.closest('div.v-table__wrapper')
+    
+        if (!wrapperElement) return
+    
+        const wrapperTop = wrapperElement.getBoundingClientRect().y ?? 0
+        const elementTop = element?.getBoundingClientRect().top ?? 0
+    
+        const TABLE_HEADER_HEIGHT = 40
+        const top = elementTop - wrapperTop - TABLE_HEADER_HEIGHT
+    
+        if (top > 0) {
+            wrapperElement.scroll({ left: 0, top, behavior: 'instant' })
+        }
+    } catch (error) {
+        console.error('[ForecastDayWeatherCard:scrollToPosition]', error)
+    }
 }
 
 onMounted(() => {
-    scrollToPosition(props.scrollToHour ?? 8)
-
-    // Scroll back left to the 1st card.
-    if (isToday.value) {
-        nextTick().then(() => cardRef.value?.$el.scrollIntoView({ behavior: 'instant', block: 'start' }))
-    }
+    const hour = isToday.value ? currentHour : (props.scrollToHour ?? 8)
+    scrollToPosition(hour)
 })
 </script>
 
