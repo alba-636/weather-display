@@ -95,7 +95,7 @@ class GPSHandler {
 
             this.listener.on('TPV', (data: TPVData) => {
                 if (data.lat && data.lon) {
-                    this.position = { lat: data.lat, lon: data.lon }
+                    this.position = { lat: data.lat, lon: data.lon, alt: data.alt }
                 }
             })
 
@@ -121,7 +121,8 @@ class GPSHandler {
 
 export interface Position {
     lat: number,
-    lon: number
+    lon: number,
+    alt: number,
 }
 
 export interface TPVData {

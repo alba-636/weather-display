@@ -14,7 +14,7 @@ export async function getPosition (
             return res.status(404).json({ code: 'PositionNotFound', message: 'Unable to get position.' })
         }
 
-        res.status(200).json({ lat: position.lat, lon: position.lon })
+        res.status(200).json({ lat: position.lat, lon: position.lon, alt: position.alt })
     } catch (error) {
         console.error('[PositionController:getPosition]', error)
         res.status(500).json({ code: 'InternalServerError', message: 'Error getting current position.' })
