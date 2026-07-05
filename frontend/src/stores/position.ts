@@ -5,6 +5,7 @@ import { computed, ref } from 'vue'
 export const usePositionStore = defineStore('position', () => {
     const latitude = ref(0)
     const longitude = ref(0)
+    const altitude = ref(0)
 
     const latitudeShort = computed(() => {
         return Number(latitude.value.toFixed(2))
@@ -14,13 +15,18 @@ export const usePositionStore = defineStore('position', () => {
         return Number(longitude.value.toFixed(2))
     })
 
+    const altitudeShort = computed(() => {
+        return Number(altitude.value.toFixed(0))
+    })
+
     async function updatePosition() {
         const position = await GPSController.fetchCurrentPosition()
         if (!position) return
         
         latitude.value = position.lat
         longitude.value = position.lon
+        altitude.value = position.alt
     }
 
-    return { latitude, longitude, latitudeShort, longitudeShort, updatePosition }
+    return { latitude, longitude, altitude, latitudeShort, longitudeShort, altitudeShort, updatePosition }
 })

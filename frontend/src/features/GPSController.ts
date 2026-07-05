@@ -19,5 +19,6 @@ export default GPSController
 
 export interface Position {
     lat: number,
-    lon: number
+    lon: number,
+    alt: number,
 }

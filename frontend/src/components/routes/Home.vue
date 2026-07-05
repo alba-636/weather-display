@@ -45,9 +45,9 @@ interface MenuItem {
 
             <v-spacer />
 
-            <p class="text-title-small">lat {{ positionStore.latitudeShort }} lon {{ positionStore.longitudeShort }}</p>
+            <p class="text-title-small">{{ positionStore.altitudeShort }}m • lat {{ positionStore.latitudeShort }} lon {{ positionStore.longitudeShort }}</p>
             <v-btn
-                :disabled="isLoadingPosition"
+                :loading="isLoadingPosition"
                 variant="text"
                 icon="mdi-reload"
                 class="mr-1"
