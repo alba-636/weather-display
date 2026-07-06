@@ -85,12 +85,17 @@ watch([() => positionStore.latitudeShort, () => positionStore.longitudeShort], (
     <!-- Forecast Weather -->
     <div
         v-else
-        class="d-flex overflow-auto">
+        class="container d-flex fill-height overflow-auto">
         <div v-for="(hourly, key) of dailyForecastWeather">
             <ForecastDayWeatherCard
-                class="ma-4"
                 :day="key.toString()"
                 :hourly="hourly" />
         </div>
     </div>    
 </template>
+
+<style lang="css" scoped>
+.container div:not(:first-child) {
+    margin-left: 8px;
+}
+</style>

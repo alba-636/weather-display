@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, useTemplateRef } from 'vue';
+import { computed, onMounted, useTemplateRef } from 'vue';
 import type { Hourly } from '@/features/openMeteoController';
-import WindDirectionIcon from './indicator/wind/WindDirectionIcon.vue';
 
 const props = defineProps<{
     day: string,
@@ -66,12 +65,14 @@ onMounted(() => {
 </script>
 
 <template>
-    <v-card ref="mainCard">
+    <v-card
+        class="fill-height"
+        ref="mainCard">
         <v-card-item>
             <v-card-title class="text-center">{{ props.day }}</v-card-title>
         </v-card-item>
 
-        <v-card-text class="px-0">
+        <v-card-text class="fill-height px-0">
             <v-data-table
                 :headers="headers"
                 :items="hourlyItems"
@@ -79,7 +80,7 @@ onMounted(() => {
                 fixed-header
                 disable-sort
                 hide-default-footer
-                height="400"
+                height="300"
                 density="compact">
                 <!-- Headers -->
                 <template v-slot:header.time>
@@ -112,20 +113,35 @@ onMounted(() => {
                         :id="'item-' + index"
                         :class="{ 'bg-grey-darken-3': index % 2 === 0 }">
                         <td>{{ String(item.time).slice(11) }}</td>
-                        <td>{{ item.temperature_2m }}°C</td>
-                        <td>{{ item.relative_humidity_2m }}%</td>
-                        <td>{{ item.cloud_cover }}%</td>
+                        <td>{{ item.temperature_2m }}<span class="unit">°C</span></td>
+                        <td>{{ item.relative_humidity_2m }}<span class="unit">%</span></td>
+
+                        <td v-if="item.cloud_cover">{{ item.cloud_cover }}<span class="unit">%</span></td>
+                        <td v-else class="text-center">-</td>
+
                         <td>
-                            {{ item.wind_speed_10m }}km/h
-                            <wind-direction-icon :direction="Number(item.wind_direction_10m)" />
+                            {{ Number(item.wind_speed_10m).toFixed(0) }}-{{ Number(item.wind_gusts_10m).toFixed(0) }}
+                            <br>
+                            <span class="unit">km/h</span>
                         </td>
-                        <td>
-                            {{ item.precipitation }}mm
-                            {{ item.precipitation_probability }}%
+                        <td v-if="item.precipitation">
+                            {{ item.precipitation }}<span class="unit">mm</span>
+                            {{ item.precipitation_probability }}<span class="unit">%</span>
                         </td>
+                        <td v-else class="text-center">-</td>
                     </tr>
                 </template>
             </v-data-table>
         </v-card-text>
     </v-card>    
 </template>
+
+<style lang="css" scoped>
+.v-data-table {
+    height: calc(100% - 48px);
+}
+
+.unit {
+    font-size: .8rem;
+}
+</style>

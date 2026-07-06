@@ -50,7 +50,6 @@ class OpenMeteoController {
                         ForecastWeatherVariable.relative_humidity_2m,
                         ForecastWeatherVariable.cloud_cover,
                         ForecastWeatherVariable.wind_speed_10m,
-                        ForecastWeatherVariable.wind_direction_10m,
                         ForecastWeatherVariable.wind_gusts_10m,
                         ForecastWeatherVariable.precipitation,
                         ForecastWeatherVariable.precipitation_probability,
