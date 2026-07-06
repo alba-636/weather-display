@@ -1,4 +1,3 @@
-
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 
 class OpenMeteoController {
@@ -13,6 +12,7 @@ class OpenMeteoController {
         try {
             const response = await OpenMeteoController.fetchOpenMeteo(
                 {
+                    models: 'best_match',
                     latitude: latitude,
                     longitude: longitude,
                     timezone: "auto",
@@ -36,11 +36,13 @@ class OpenMeteoController {
     static async fetchForecast (
         latitude: number,
         longitude: number,
-        forecastDays: number = 7
+        forecastDays: number = 7,
+        model: string | undefined | null = 'best_match',
     ): Promise<HourlyForecastWeather | null | undefined> {
         try {
             const response = await OpenMeteoController.fetchOpenMeteo(
                 {
+                    models: model ?? 'best_match',
                     latitude: latitude,
                     longitude: longitude,
                     timezone: "auto",
@@ -128,6 +130,7 @@ enum ForecastWeatherVariable {
 }
 
 export interface OpenMeteoParams {
+    models: string,
     latitude: number,
     longitude: number,
     timezone: string,

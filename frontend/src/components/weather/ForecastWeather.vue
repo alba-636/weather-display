@@ -6,7 +6,8 @@ import { computed, ref, watch } from 'vue';
 import ForecastDayWeatherCard from './ForecastDayWeatherCard.vue';
 
 const props = defineProps<{
-    days: number
+    days: number,
+    model?: string | undefined | null,
 }>()
 
 const positionStore = usePositionStore()
@@ -59,7 +60,7 @@ const dailyForecastWeather = computed(() => {
 async function fetchForecastWeather() {
     if (!hasPosition) return console.warn('[CurrentWeatherCard] Not position found!')
     isLoadingWeather.value = true
-    await weatherStore.updateHourlyForecastWeather(positionStore.latitude, positionStore.longitude, props.days)
+    await weatherStore.updateHourlyForecastWeather(positionStore.latitude, positionStore.longitude, props.days, props.model)
     isLoadingWeather.value = false
 }
 
