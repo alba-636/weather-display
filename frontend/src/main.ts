@@ -9,7 +9,11 @@ import { createVuetify } from 'vuetify'
 import App from './App.vue'
 import router from './router'
 
-const vuetify = createVuetify()
+const vuetify = createVuetify({
+    theme: {
+        defaultTheme: 'dark'
+    }
+})
 
 const app = createApp(App)
 
