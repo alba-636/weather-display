@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { usePositionStore } from '@/stores/position';
 import { ref } from 'vue';
+import FullscreenButton from '../helpers/FullscreenButton.vue';
 
 const positionStore = usePositionStore()
 
@@ -42,6 +43,8 @@ interface MenuItem {
                 variant="text"
                 size="x-large"
                 @click="showDrawer = true" />
+
+            <fullscreen-button />
 
             <v-spacer />
 
