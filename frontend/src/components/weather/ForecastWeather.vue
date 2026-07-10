@@ -81,7 +81,7 @@ watch([() => positionStore.latitudeShort, () => positionStore.longitudeShort], (
 <template>
     <!-- Loader -->
      <v-progress-circular
-        v-if="isLoadingWeather"
+        v-if="isLoadingWeather && !hourlyForecast"
         indeterminate
         size="32"
         width="4" />
