@@ -1,23 +1,28 @@
 <script setup lang="ts">
 import { usePositionStore } from '@/stores/position';
-import { useWeatherStore } from '@/stores/weather';
 import { computed, onUnmounted, ref, watch } from 'vue';
 import Wind from './indicator/wind/Wind.vue';
 import Humidity from './indicator/Humidity.vue';
 import CloudCover from './indicator/CloudCover.vue';
 import Thermometer from './indicator/Thermometer.vue';
+import OpenMeteoController, { type CurrentWeather } from '@/features/openMeteoController.ts';
+import type { OpenMeteoModels } from '@/features/openMeteoLocalStorage.ts';
+
+const props = defineProps<{
+    model?: OpenMeteoModels
+}>()
 
 const positionStore = usePositionStore()
-const weatherStore = useWeatherStore()
 
 const date = ref(new Date())
+const currentWeather = ref<CurrentWeather | null>(null)
 
 const hasPosition = computed(() => {
     return positionStore.latitude !== 0 && positionStore.longitude !== 0
 })
 
 const hasCurrentWeatherData = computed(() => {
-    return weatherStore.current !== null && weatherStore.current !== undefined
+    return currentWeather.value !== null
 })
 
 const dateFomatted = computed(() => {
@@ -26,7 +31,10 @@ const dateFomatted = computed(() => {
 
 async function fetchCurrentMeteo() {
     if (!hasPosition) return console.warn('[CurrentWeatherCard] Not position found!')
-    await weatherStore.updateCurrentWeather(positionStore.latitude, positionStore.longitude)
+    const weather = await OpenMeteoController.fetchCurrent(positionStore.latitude, positionStore.longitude, props.model)
+    if (weather) {
+        currentWeather.value = weather
+    }
 }
 
 if (positionStore.latitudeShort && positionStore.longitudeShort) fetchCurrentMeteo()
@@ -54,25 +62,25 @@ onUnmounted(() => {
             <v-card-title class="text-center">{{ dateFomatted }}</v-card-title>
         </v-card-item>
 
-        <v-card-text v-if="weatherStore.current">
+        <v-card-text v-if="currentWeather">
             <div class="d-flex flex-wrap justify-space-evenly">
                 <thermometer
-                    v-if="weatherStore.current.current.temperature_2m"
-                    :temperature="weatherStore.current.current.temperature_2m" />
+                    v-if="currentWeather.current.temperature_2m"
+                    :temperature="currentWeather.current.temperature_2m" />
     
                 <humidity
-                    v-if="weatherStore.current.current.relative_humidity_2m"
-                    :humidity="weatherStore.current.current.relative_humidity_2m" />
+                    v-if="currentWeather.current.relative_humidity_2m"
+                    :humidity="currentWeather.current.relative_humidity_2m" />
     
                 <cloud-cover
-                    v-if="weatherStore.current.current.cloud_cover"
-                    :cloud-cover="weatherStore.current.current.cloud_cover" />
+                    v-if="currentWeather.current.cloud_cover"
+                    :cloud-cover="currentWeather.current.cloud_cover" />
     
                 <wind
-                    v-if="weatherStore.current.current.wind_speed_10m && weatherStore.current.current.wind_gusts_10m && weatherStore.current.current.wind_direction_10m"
-                    :wind-speed="weatherStore.current.current.wind_speed_10m"
-                    :gust-speed="weatherStore.current.current.wind_gusts_10m"
-                    :direction="weatherStore.current.current.wind_direction_10m" />
+                    v-if="currentWeather.current.wind_speed_10m && currentWeather.current.wind_gusts_10m && currentWeather.current.wind_direction_10m"
+                    :wind-speed="currentWeather.current.wind_speed_10m"
+                    :gust-speed="currentWeather.current.wind_gusts_10m"
+                    :direction="currentWeather.current.wind_direction_10m" />
             </div>
         </v-card-text>
     </v-card>

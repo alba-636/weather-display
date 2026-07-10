@@ -2,11 +2,12 @@
 const OPEN_METEO_MODEL_KEY = 'open_meteo_model'
 
 class OpenMeteoLocalStorage {
-    static getModel (): string {
-        return window.localStorage.getItem(OPEN_METEO_MODEL_KEY) ?? OpenMeteoModels.best_match
+    static getModel (): OpenMeteoModels {
+        const model =  window.localStorage.getItem(OPEN_METEO_MODEL_KEY) ?? OpenMeteoModels.best_match
+        return model as OpenMeteoModels
     }
 
-    static setModel (model: string) {
+    static setModel (model: OpenMeteoModels | string) {
         window.localStorage.setItem(OPEN_METEO_MODEL_KEY, model ?? OpenMeteoModels.best_match)
     }
 }

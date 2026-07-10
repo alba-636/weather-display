@@ -1,3 +1,5 @@
+import { OpenMeteoModels } from "./openMeteoLocalStorage"
+
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 
 class OpenMeteoController {
@@ -7,12 +9,13 @@ class OpenMeteoController {
 
     static async fetchCurrent (
         latitude: number,
-        longitude: number
+        longitude: number,
+        model?: OpenMeteoModels,
     ): Promise<CurrentWeather | null | undefined> {
         try {
             const response = await OpenMeteoController.fetchOpenMeteo(
                 {
-                    models: 'best_match',
+                    models: model ?? OpenMeteoModels.best_match,
                     latitude: latitude,
                     longitude: longitude,
                     timezone: "auto",
