@@ -11,6 +11,7 @@ const isLoadingPosition = ref<boolean>(true)
 const menuItems: MenuItem[] = [
     { title: 'Current Weather', path: '/weather/current' },
     { title: 'Forecast Weather', path: '/weather/forecast' },
+    { title: 'Settings', path: '/settings', icon: 'mdi-cog' },
     { title: 'Status', path: '/status', icon: 'mdi-check-network' },
 ]
 
