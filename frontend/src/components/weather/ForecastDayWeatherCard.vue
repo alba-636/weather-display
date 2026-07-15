@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, useTemplateRef } from 'vue';
+import { computed, nextTick, onMounted, useTemplateRef } from 'vue';
 import type { Hourly } from '@/features/openMeteoController';
 
 const props = defineProps<{
@@ -10,6 +10,11 @@ const props = defineProps<{
 
 const cardRef = useTemplateRef('mainCard')
 const currentHour = (new Date()).getHours()
+
+const dayFormatted = computed(() => {
+    const date = new Date(props.day)
+    return date.toLocaleString('fr-FR', { weekday: 'long', month: 'long', day: '2-digit' })
+})
 
 const hourlyItems = computed(() => {
     return props.hourly.time?.map((_, index) => {
@@ -60,7 +65,7 @@ function scrollToPosition (position: number) {
 
 onMounted(() => {
     const hour = isToday.value ? currentHour : (props.scrollToHour ?? 8)
-    scrollToPosition(hour)
+    nextTick(() => scrollToPosition(hour))
 })
 </script>
 
@@ -69,7 +74,7 @@ onMounted(() => {
         class="fill-height"
         ref="mainCard">
         <v-card-item>
-            <v-card-title class="text-center">{{ props.day }}</v-card-title>
+            <v-card-title class="text-center">{{ dayFormatted }}</v-card-title>
         </v-card-item>
 
         <v-card-text class="fill-height px-0">
@@ -109,9 +114,20 @@ onMounted(() => {
 
                 <!-- Items -->
                 <template v-slot:item="{ index, item }">
+                    <!-- Current Hour Indicator -->
+                    <tr
+                        v-if="isToday && index === currentHour"
+                        class="current-hour">
+                        <td
+                            colspan="100%"
+                            class="bg-pink-darken-2" />
+                    </tr>
+
                     <tr
                         :id="'item-' + index"
-                        :class="{ 'bg-grey-darken-3': index % 2 === 0 }">
+                        :class="{
+                            'bg-grey-darken-3': index % 2 === 0,
+                        }">
                         <td>{{ String(item.time).slice(11) }}</td>
                         <td>{{ item.temperature_2m }}<span class="unit">°C</span></td>
                         <td>{{ item.relative_humidity_2m }}<span class="unit">%</span></td>
@@ -126,7 +142,9 @@ onMounted(() => {
                         </td>
                         <td v-if="item.precipitation">
                             {{ item.precipitation }}<span class="unit">mm</span>
-                            {{ item.precipitation_probability }}<span class="unit">%</span>
+                            <template v-if="item.precipitation_probability">
+                                {{ item.precipitation_probability }}<span class="unit">%</span>
+                            </template>
                         </td>
                         <td v-else class="text-center">-</td>
                     </tr>
@@ -143,5 +161,9 @@ onMounted(() => {
 
 .unit {
     font-size: .8rem;
+}
+
+.current-hour td {
+    height: 1px
 }
 </style>
