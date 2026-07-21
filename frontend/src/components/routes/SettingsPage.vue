@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import FallbackPositionListItem from '../settings/FallbackPositionListItem.vue';
 import ModelSettingListItem from '../settings/ModelSettingListItem.vue';
-
 
 </script>
 
@@ -9,5 +9,7 @@ import ModelSettingListItem from '../settings/ModelSettingListItem.vue';
         <v-list-subheader>Settings</v-list-subheader>
 
         <ModelSettingListItem />
+
+        <FallbackPositionListItem />
     </v-list>
 </template>

@@ -20,12 +20,14 @@ export const usePositionStore = defineStore('position', () => {
     })
 
     async function updatePosition() {
-        const position = await GPSController.fetchCurrentPosition()
-        if (!position) return
-        
-        latitude.value = position.lat
-        longitude.value = position.lon
-        altitude.value = position.alt
+        let position = await GPSController.fetchCurrentPosition()
+        if (!position) position = GPSController.getFallbackPosition()
+
+        if (latitude.value !== position.lat || longitude.value !== position.lon || altitude.value !== position.alt) {
+            latitude.value = position.lat
+            longitude.value = position.lon
+            altitude.value = position.alt
+        }
     }
 
     return { latitude, longitude, altitude, latitudeShort, longitudeShort, altitudeShort, updatePosition }

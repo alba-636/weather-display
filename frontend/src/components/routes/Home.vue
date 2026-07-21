@@ -49,7 +49,9 @@ interface MenuItem {
 
             <v-spacer />
 
-            <p class="text-title-small">{{ positionStore.altitudeShort }}m • lat {{ positionStore.latitudeShort }} lon {{ positionStore.longitudeShort }}</p>
+            <p class="text-title-small">
+                <span v-if="positionStore.altitudeShort">{{ positionStore.altitudeShort }}m •</span> lat {{ positionStore.latitudeShort }}° lon {{ positionStore.longitudeShort }}°
+            </p>
             <v-btn
                 :loading="isLoadingPosition"
                 variant="text"
