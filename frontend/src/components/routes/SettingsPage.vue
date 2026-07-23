@@ -16,3 +16,9 @@ import ModelSettingListItem from '../settings/ModelSettingListItem.vue';
         <FallbackPositionListItem />
     </v-list>
 </template>
+
+<style lang="css" scoped>
+.v-list-subheader {
+    user-select: none;
+}
+</style>

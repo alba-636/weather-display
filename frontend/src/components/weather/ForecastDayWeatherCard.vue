@@ -166,4 +166,8 @@ onMounted(() => {
 .current-hour td {
     height: 1px
 }
+
+.v-card-title, td {
+  user-select: none;
+}
 </style>

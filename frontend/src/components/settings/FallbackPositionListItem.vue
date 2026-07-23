@@ -54,3 +54,9 @@ function updateLongitude (newLongitude: number) {
         </template>
     </v-list-item>
 </template>
+
+<style lang="css" scoped>
+.v-list-item-title {
+    user-select: none;
+}
+</style>
