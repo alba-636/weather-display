@@ -6,6 +6,7 @@ export const usePositionStore = defineStore('position', () => {
     const latitude = ref(0)
     const longitude = ref(0)
     const altitude = ref(0)
+    const isUsingFallback = ref(false)
 
     const latitudeShort = computed(() => {
         return Number(latitude.value.toFixed(2))
@@ -20,8 +21,12 @@ export const usePositionStore = defineStore('position', () => {
     })
 
     async function updatePosition() {
+        isUsingFallback.value = false
         let position = await GPSController.fetchCurrentPosition()
-        if (!position) position = GPSController.getFallbackPosition()
+        if (!position) {
+            position = GPSController.getFallbackPosition()
+            isUsingFallback.value = true
+        }
 
         if (latitude.value !== position.lat || longitude.value !== position.lon || altitude.value !== position.alt) {
             latitude.value = position.lat
@@ -30,5 +35,5 @@ export const usePositionStore = defineStore('position', () => {
         }
     }
 
-    return { latitude, longitude, altitude, latitudeShort, longitudeShort, altitudeShort, updatePosition }
+    return { latitude, longitude, altitude, isUsingFallback, latitudeShort, longitudeShort, altitudeShort, updatePosition }
 })

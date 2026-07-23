@@ -2,6 +2,8 @@
 import { usePositionStore } from '@/stores/position';
 import { ref } from 'vue';
 import FullscreenButton from '../helpers/FullscreenButton.vue';
+import CurrentPosition from '../header/CurrentPosition.vue';
+import UpdateDataBtn from '../header/UpdateDataBtn.vue';
 
 const positionStore = usePositionStore()
 
@@ -50,15 +52,9 @@ interface MenuItem {
 
             <v-spacer />
 
-            <p class="text-title-small">
-                <span v-if="positionStore.altitudeShort">{{ positionStore.altitudeShort }}m •</span> lat {{ positionStore.latitudeShort }}° lon {{ positionStore.longitudeShort }}°
-            </p>
-            <v-btn
-                :loading="isLoadingPosition"
-                variant="text"
-                icon="mdi-reload"
-                class="mr-1"
-                @click="updatePosition" />
+            <current-position />
+
+            <update-data-btn />
         </div>
         
         <v-navigation-drawer

@@ -1,17 +1,3 @@
-
-const OPEN_METEO_MODEL_KEY = 'open_meteo_model'
-
-class OpenMeteoLocalStorage {
-    static getModel (): OpenMeteoModels {
-        const model =  window.localStorage.getItem(OPEN_METEO_MODEL_KEY) ?? OpenMeteoModels.best_match
-        return model as OpenMeteoModels
-    }
-
-    static setModel (model: OpenMeteoModels | string) {
-        window.localStorage.setItem(OPEN_METEO_MODEL_KEY, model ?? OpenMeteoModels.best_match)
-    }
-}
-
 export enum OpenMeteoModels {
     best_match = 'best_match',
     ecmwf_ifs = 'ecmwf_ifs',
@@ -63,6 +49,32 @@ export enum OpenMeteoModels {
     meteoswiss_icon_seamless = 'meteoswiss_icon_seamless',
     meteoswiss_icon_ch1 = 'meteoswiss_icon_ch1',
     meteoswiss_icon_ch2 = 'meteoswiss_icon_ch2',
+}
+
+const OPEN_METEO_MODEL_KEY = 'open_meteo_model'
+const OPEN_METEO_FORECAST_DAYS_KEY = 'open_meteo_forecast_days'
+
+const DEFAULT_MODEL = OpenMeteoModels.best_match
+const DEFAULT_FORECAST_DAYS = 3
+
+class OpenMeteoLocalStorage {
+    static getModel (): OpenMeteoModels {
+        const model = window.localStorage.getItem(OPEN_METEO_MODEL_KEY) ?? DEFAULT_MODEL
+        return model as OpenMeteoModels
+    }
+
+    static setModel (model: OpenMeteoModels | string) {
+        window.localStorage.setItem(OPEN_METEO_MODEL_KEY, model ?? DEFAULT_MODEL)
+    }
+
+    static getForecastDays (): number {
+        const days = window.localStorage.getItem(OPEN_METEO_FORECAST_DAYS_KEY) ?? DEFAULT_FORECAST_DAYS
+        return Number(days)
+    }
+
+    static setForecastDays (days: number | null) {
+        window.localStorage.setItem(OPEN_METEO_FORECAST_DAYS_KEY, String(days ?? DEFAULT_FORECAST_DAYS))
+    }
 }
 
 export default OpenMeteoLocalStorage

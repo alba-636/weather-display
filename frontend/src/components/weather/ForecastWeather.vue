@@ -1,19 +1,14 @@
 <script setup lang="ts">
-import OpenMeteoController, { type Hourly, type HourlyForecastWeather } from '@/features/openMeteoController';
+import { type Hourly } from '@/features/openMeteoController';
 import { usePositionStore } from '@/stores/position';
 import { computed, ref, watch } from 'vue';
 import ForecastDayWeatherCard from './ForecastDayWeatherCard.vue';
-import type { OpenMeteoModels } from '@/features/openMeteoLocalStorage.ts';
-
-const props = defineProps<{
-    days: number,
-    model?: OpenMeteoModels,
-}>()
+import { useWeatherStore } from '@/stores/weatherStore.ts';
 
 const positionStore = usePositionStore()
+const weatherStore = useWeatherStore()
 
 const isLoadingWeather = ref<boolean>(true)
-const hourlyForecast = ref<HourlyForecastWeather | null>(null)
 
 const hasPosition = computed(() => {
     return positionStore.latitude !== 0 && positionStore.longitude !== 0
@@ -21,20 +16,20 @@ const hasPosition = computed(() => {
 
 // Bulk data by days
 const dailyForecastWeather = computed(() => {
-    if (!hourlyForecast.value?.hourly?.time || hourlyForecast.value.hourly.time.length <= 0) return []
+    if (!weatherStore.forecastWeather?.hourly?.time || weatherStore.forecastWeather.hourly.time.length <= 0) return []
 
     const daily: Record<string, Hourly> = {}
 
-    const length = hourlyForecast.value.hourly.time.length
+    const length = weatherStore.forecastWeather.hourly.time.length
     for (let i = 0; i < length; i++) {
-        const datetime = hourlyForecast.value.hourly.time[i]
+        const datetime = weatherStore.forecastWeather.hourly.time[i]
         if (!datetime) continue
 
         const day = getDay(datetime)
         if (!!daily[day]) {
             // Use existing record
-            Object.keys(hourlyForecast.value.hourly).forEach((key) => {
-                const value = hourlyForecast.value?.hourly?.[key]?.[i]
+            Object.keys(weatherStore.forecastWeather.hourly).forEach((key) => {
+                const value = weatherStore.forecastWeather?.hourly?.[key]?.[i]
                 if (value !== undefined && daily[day]) {
                     daily[day][key]?.push(value)
                 }
@@ -43,8 +38,8 @@ const dailyForecastWeather = computed(() => {
         } else {
             // Create new record
             const hourly: Record<string, (string|number)[]> = {}
-            Object.keys(hourlyForecast.value.hourly).forEach((key) => {
-                const value = hourlyForecast.value?.hourly?.[key]?.[i]
+            Object.keys(weatherStore.forecastWeather.hourly).forEach((key) => {
+                const value = weatherStore.forecastWeather?.hourly?.[key]?.[i]
                 if (value !== undefined) {
                     hourly[key] = [value]
                 }
@@ -60,9 +55,10 @@ const dailyForecastWeather = computed(() => {
 async function fetchForecastWeather() {
     if (!hasPosition) return console.warn('[CurrentWeatherCard] Not position found!')
     isLoadingWeather.value = true
-    const hourly = await OpenMeteoController.fetchForecast(positionStore.latitude, positionStore.longitude, props.days, props.model)
-    if (hourly) {
-        hourlyForecast.value = hourly
+    try {
+        await weatherStore.getForecastWeather()
+    } catch (error) {
+        console.error('[ForecastWeather:fetchForecastWeather]', error)
     }
     isLoadingWeather.value = false
 }
@@ -72,7 +68,7 @@ function getDay (datetime: string): string {
 }
 
 if (positionStore.latitudeShort && positionStore.longitudeShort) fetchForecastWeather()
-watch([() => positionStore.latitudeShort, () => positionStore.longitudeShort], ([lat, lon]) => {
+watch([() => positionStore.latitudeShort, () => positionStore.longitudeShort], () => {
     fetchForecastWeather()
 })
 
@@ -81,7 +77,7 @@ watch([() => positionStore.latitudeShort, () => positionStore.longitudeShort], (
 <template>
     <!-- Loader -->
      <v-progress-circular
-        v-if="isLoadingWeather && !hourlyForecast"
+        v-if="isLoadingWeather && !weatherStore.forecastWeather"
         indeterminate
         size="32"
         width="4" />

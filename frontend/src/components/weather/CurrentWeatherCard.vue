@@ -5,24 +5,19 @@ import Wind from './indicator/wind/Wind.vue';
 import Humidity from './indicator/Humidity.vue';
 import CloudCover from './indicator/CloudCover.vue';
 import Thermometer from './indicator/Thermometer.vue';
-import OpenMeteoController, { type CurrentWeather } from '@/features/openMeteoController.ts';
-import type { OpenMeteoModels } from '@/features/openMeteoLocalStorage.ts';
-
-const props = defineProps<{
-    model?: OpenMeteoModels
-}>()
+import { useWeatherStore } from '@/stores/weatherStore.ts';
 
 const positionStore = usePositionStore()
+const weatherStore = useWeatherStore()
 
 const date = ref(new Date())
-const currentWeather = ref<CurrentWeather | null>(null)
 
 const hasPosition = computed(() => {
     return positionStore.latitude !== 0 && positionStore.longitude !== 0
 })
 
 const hasCurrentWeatherData = computed(() => {
-    return currentWeather.value !== null
+    return weatherStore.currentWeather !== null
 })
 
 const dateFomatted = computed(() => {
@@ -30,15 +25,15 @@ const dateFomatted = computed(() => {
 })
 
 async function fetchCurrentMeteo() {
-    if (!hasPosition) return console.warn('[CurrentWeatherCard] Not position found!')
-    const weather = await OpenMeteoController.fetchCurrent(positionStore.latitude, positionStore.longitude, props.model)
-    if (weather) {
-        currentWeather.value = weather
+    try {
+        await weatherStore.getCurrentWeather()
+    } catch (error) {
+        console.error('[CurrentWeatherCard:fetchCurrentMeteo]', error)
     }
 }
 
 if (positionStore.latitudeShort && positionStore.longitudeShort) fetchCurrentMeteo()
-watch([() => positionStore.latitudeShort, () => positionStore.longitudeShort], ([lat, lon]) => {
+watch([() => positionStore.latitudeShort, () => positionStore.longitudeShort], () => {
     fetchCurrentMeteo()
 })
 
@@ -62,25 +57,25 @@ onUnmounted(() => {
             <v-card-title class="text-center">{{ dateFomatted }}</v-card-title>
         </v-card-item>
 
-        <v-card-text v-if="currentWeather">
+        <v-card-text v-if="weatherStore.currentWeather">
             <div class="d-flex flex-wrap justify-space-evenly">
                 <thermometer
-                    v-if="currentWeather.current.temperature_2m"
-                    :temperature="currentWeather.current.temperature_2m" />
+                    v-if="weatherStore.currentWeather.current.temperature_2m"
+                    :temperature="weatherStore.currentWeather.current.temperature_2m" />
     
                 <humidity
-                    v-if="currentWeather.current.relative_humidity_2m"
-                    :humidity="currentWeather.current.relative_humidity_2m" />
+                    v-if="weatherStore.currentWeather.current.relative_humidity_2m"
+                    :humidity="weatherStore.currentWeather.current.relative_humidity_2m" />
     
                 <cloud-cover
-                    v-if="currentWeather.current.cloud_cover"
-                    :cloud-cover="currentWeather.current.cloud_cover" />
+                    v-if="weatherStore.currentWeather.current.cloud_cover"
+                    :cloud-cover="weatherStore.currentWeather.current.cloud_cover" />
     
                 <wind
-                    v-if="currentWeather.current.wind_speed_10m && currentWeather.current.wind_gusts_10m && currentWeather.current.wind_direction_10m"
-                    :wind-speed="currentWeather.current.wind_speed_10m"
-                    :gust-speed="currentWeather.current.wind_gusts_10m"
-                    :direction="currentWeather.current.wind_direction_10m" />
+                    v-if="weatherStore.currentWeather.current.wind_speed_10m && weatherStore.currentWeather.current.wind_gusts_10m && weatherStore.currentWeather.current.wind_direction_10m"
+                    :wind-speed="weatherStore.currentWeather.current.wind_speed_10m"
+                    :gust-speed="weatherStore.currentWeather.current.wind_gusts_10m"
+                    :direction="weatherStore.currentWeather.current.wind_direction_10m" />
             </div>
         </v-card-text>
     </v-card>
