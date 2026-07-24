@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, useTemplateRef } from 'vue';
+import { computed, nextTick, onMounted, useTemplateRef, type DeepReadonly } from 'vue';
 import type { Hourly } from '@/features/openMeteoController';
+import type { DataTableHeader } from 'vuetify';
 
 const props = defineProps<{
     day: string,
@@ -79,7 +80,7 @@ onMounted(() => {
 
         <v-card-text class="fill-height px-0">
             <v-data-table
-                :headers="headers"
+                :headers="headers as DeepReadonly<DataTableHeader<any>[]>"
                 :items="hourlyItems"
                 :items-per-page="-1"
                 fixed-header
